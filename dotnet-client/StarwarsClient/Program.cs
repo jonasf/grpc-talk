@@ -10,8 +10,8 @@ namespace StarwarsClient
     class Program
     {
         private const int Port = 50051;
-        private const int NumberOfCharactersToFetch = 100000;
-        private const bool PrintResult = false;
+        private const int NumberOfCharactersToFetch = 10;
+        private const bool PrintResult = true;
 
         static void Main(string[] args)
         {
