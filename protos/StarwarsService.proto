@@ -1,0 +1,18 @@
+syntax="proto3";
+
+package Starwars;
+
+service StarwarsService {
+    rpc GetCharacter (CharacterRequest) returns (CharacterResponse) {}
+    rpc GetCharacterStream (stream CharacterRequest) returns (stream CharacterResponse) {}
+  }
+  
+  message CharacterRequest {
+    string name = 1;
+  }
+  
+  message CharacterResponse {
+    string Name = 1;
+    string Gender = 2;
+    string Height = 3;
+  }
