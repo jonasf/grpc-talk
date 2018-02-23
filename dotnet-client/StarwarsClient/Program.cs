@@ -1,42 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Grpc.Core;
-using Starwars;
 
 namespace StarwarsClient
 {
     class Program
     {
         private const int Port = 50051;
+        private const string ServiceUrl = "localhost";
+
         private const int NumberOfCharactersToFetch = 10;
         private const bool PrintResult = true;
 
         static void Main(string[] args)
         {
-            var channel = new Channel("localhost", Port, ChannelCredentials.Insecure);
+            var characters = CreateCharacterList(NumberOfCharactersToFetch);
 
-            var client = new StarwarsClient(new StarwarsService.StarwarsServiceClient(channel), PrintResult);
-
-           var characters = CreateCharacterList(NumberOfCharactersToFetch);
-
-            Console.WriteLine("Fetching {0} characters one at the time", characters.Count);
-            MeasureTimeTaken(() =>
+            using (var client = new StarwarsClient(ServiceUrl, Port, PrintResult))
             {
-                foreach (var character in characters)
+                Console.WriteLine("Fetching {0} characters one at the time", characters.Count);
+                MeasureTimeTaken(() =>
                 {
-                    client.GetCharacters(character).Wait();
-                }
-            }, "Async");
+                    foreach (var character in characters)
+                    {
+                        client.GetCharacters(character).Wait();
+                    }
+                }, "Async");
 
-            Console.WriteLine("Fetching {0} characters over a stream", characters.Count);
-            MeasureTimeTaken(() =>
-            {
-                client.GetCharactersStream(characters).Wait();
-            }, "Streaming"); 
+                Console.WriteLine("Fetching {0} characters over a stream", characters.Count);
+                MeasureTimeTaken(() =>
+                {
+                    client.GetCharactersStream(characters).Wait();
+                }, "Streaming");
+            }
 
-            channel.ShutdownAsync().Wait();
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }

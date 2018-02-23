@@ -6,15 +6,18 @@ using Starwars;
 
 namespace StarwarsClient
 {
-    public class StarwarsClient
+    public class StarwarsClient : IDisposable
     {
         private readonly StarwarsService.StarwarsServiceClient _starwarsServiceClient;
+        private readonly Channel _grpcChannel;
         private readonly bool _printResultToConsoleOut;
         private const int TimeOut = 120;
 
-        public StarwarsClient(StarwarsService.StarwarsServiceClient starwarsServiceClient, bool printResultToConsoleOut)
+        public StarwarsClient(string serviceUrl, int port, bool printResultToConsoleOut)
         {
-            _starwarsServiceClient = starwarsServiceClient;
+            
+            _grpcChannel = new Channel(serviceUrl, port, ChannelCredentials.Insecure);
+            _starwarsServiceClient = new StarwarsService.StarwarsServiceClient(_grpcChannel);
             _printResultToConsoleOut = printResultToConsoleOut;
         }
 
@@ -69,6 +72,11 @@ namespace StarwarsClient
             var result = $"Name: {response.Name}, Gender: {response.Gender}, Height: {response.Height}";
 
             Console.WriteLine(result);
+        }
+
+        public void Dispose()
+        {
+            _grpcChannel.ShutdownAsync().Wait();
         }
     }
 }
